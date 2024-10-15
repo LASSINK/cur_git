@@ -11,14 +11,23 @@ class UserProfile extends HTMLElement {
 
     attributeChangedCallback(name, oldValue, newValue) {
         if (name === 'user-service') {
-            this.userService = JSON.parse(newValue);
+            // UserService 인스턴스를 직접 받도록 수정
+            this.userService = window.userService;
             this.fetchUserProfile();
         }
     }
 
     async fetchUserProfile() {
-        this.user = await this.userService.getCurrentUser();
-        this.render();
+        try {
+            if (!this.userService) {
+                throw new Error('UserService가 정의되지 않았습니다.');
+            }
+            this.user = await this.userService.getCurrentUser();
+            this.render();
+        } catch (error) {
+            console.error('사용자 프로필을 불러오는 데 실패했습니다:', error);
+            this.shadowRoot.innerHTML = '<p>사용자 프로필을 불러오는 데 실패했습니다.</p>';
+        }
     }
 
     render() {

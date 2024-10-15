@@ -11,27 +11,38 @@ class JobList extends HTMLElement {
 
     attributeChangedCallback(name, oldValue, newValue) {
         if (name === 'job-service') {
-            this.jobService = JSON.parse(newValue);
+            // JobService 인스턴스를 직접 받도록 수정
+            this.jobService = window.jobService;
             this.fetchJobs();
         }
     }
 
     async fetchJobs() {
-        this.jobs = await this.jobService.getJobs();
-        this.render();
+        try {
+            if (!this.jobService) {
+                throw new Error('JobService가 정의되지 않았습니다.');
+            }
+            this.jobs = await this.jobService.getJobs();
+            this.render();
+        } catch (error) {
+            console.error('구직 목록을 불러오는 데 실패했습니다:', error);
+            this.shadowRoot.innerHTML = '<p>구직 목록을 불러오는 데 실패했습니다.</p>';
+        }
     }
 
     render() {
         this.shadowRoot.innerHTML = `
             <h2>구직 목록</h2>
-            <ul>
-                ${this.jobs.map(job => `
-                    <li>
-                        <h3>${job.title}</h3>
-                        <p>${job.description}</p>
-                    </li>
-                `).join('')}
-            </ul>
+            ${this.jobs.length === 0 ? '<p>로딩 중...</p>' : `
+                <ul>
+                    ${this.jobs.map(job => `
+                        <li>
+                            <h3>${job.title}</h3>
+                            <p>${job.description}</p>
+                        </li>
+                    `).join('')}
+                </ul>
+            `}
         `;
     }
 }
