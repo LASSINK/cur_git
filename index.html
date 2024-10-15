@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>취업주선 서비스</title>
+    <script src="components/app-header.js"></script>
+    <script src="components/job-list.js"></script>
+    <script src="components/job-detail.js"></script>
+    <script src="components/user-profile.js"></script>
+    <script src="services/job-service.js"></script>
+    <script src="services/user-service.js"></script>
+</head>
+<body>
+    <app-header></app-header>
+    <main id="main-content"></main>
+
+    <script>
+        const mainContent = document.getElementById('main-content');
+        const jobService = new JobService();
+        const userService = new UserService();
+
+        // 라우팅 로직
+        function route(path) {
+            mainContent.innerHTML = '';
+            switch(path) {
+                case '/':
+                    const jobList = document.createElement('job-list');
+                    jobList.setAttribute('job-service', JSON.stringify(jobService));
+                    mainContent.appendChild(jobList);
+                    break;
+                case '/profile':
+                    const userProfile = document.createElement('user-profile');
+                    userProfile.setAttribute('user-service', JSON.stringify(userService));
+                    mainContent.appendChild(userProfile);
+                    break;
+                // 다른 라우트들...
+            }
+        }
+
+        // 초기 라우트
+        route('/');
+    </script>
+</body>
+</html>
